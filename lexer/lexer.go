@@ -3,6 +3,7 @@ package lexer
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"io"
 	"strings"
 	"unicode"
@@ -11,14 +12,34 @@ import (
 type TokenType int
 
 const (
-	SEP TokenType = 1 << iota
+	OPENING TokenType = 1 << iota
+	CLOSING
 	IDENT
 	CONN
 )
 
+func (t TokenType) String() string {
+	switch t {
+	case OPENING:
+		return "OPENING"
+	case CLOSING:
+		return "CLOSING"
+	case IDENT:
+		return "IDENT"
+	case CONN:
+		return "CONN"
+	default:
+		return "UNKNOWN"
+	}
+}
+
 type Token struct {
 	TStr  string
 	TType TokenType
+}
+
+func (t Token) String() string {
+	return fmt.Sprintf("%v", t.TStr)
 }
 
 func NewToken(str string, TType TokenType) Token {
@@ -54,8 +75,10 @@ func (l *Lexer) Lex() (Token, error) {
 			switch r {
 			case '~':
 				return NewToken(string(r), CONN), nil
-			case '(', ')':
-				return NewToken(string(r), SEP), nil
+			case '(':
+				return NewToken(string(r), OPENING), nil
+			case ')':
+				return NewToken(string(r), CLOSING), nil
 			case '/':
 				nextR, _, err := l.buf.ReadRune()
 
