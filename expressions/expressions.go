@@ -57,3 +57,22 @@ func (exp Expression) Eval() bool {
 		panic("eval failed")
 	}
 }
+
+func GetConnectiveType(str string) Op {
+	switch str {
+	case "~", "!":
+		return NOT
+	case "^", "/\\":
+		return AND
+	case "\\/":
+		return OR
+	case "<>", "!=":
+		return XOR
+	case "<->", "<=>":
+		return IF_AND_ONLY_IF
+	case "->", "=>":
+		return IMPLIES
+	default:
+		panic("unknown connective")
+	}
+}

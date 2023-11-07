@@ -3,30 +3,58 @@ package eval
 import (
 	"math"
 
-	"github.com/DavidEsdrs/prop-solver/expressions"
+	"github.com/DavidEsdrs/prop-solver/lexer"
 )
 
 type Evaluable struct {
-	props     []string
-	operation expressions.Op
+	props   []string
+	results map[string][]bool
 }
 
-func NewEvaluable(simpleProps []string, operation expressions.Op) Evaluable {
-	return Evaluable{simpleProps, operation}
+func (e *Evaluable) Result() map[string][]bool {
+	return e.results
 }
 
-func (e Evaluable) Eval() ([]bool, []bool, []bool) {
+func NewEvaluable(tokens []*lexer.Token) Evaluable {
+	return Evaluable{
+		props:   getIdentifiers(tokens),
+		results: make(map[string][]bool),
+	}
+}
+
+func getIdentifiers(tokens []*lexer.Token) []string {
+	props := []string{}
+
+	for _, n := range tokens {
+		if n.TType == lexer.IDENT {
+			props = append(props, n.TStr)
+		}
+	}
+
+	return props
+}
+
+func (e *Evaluable) Evaluate() [][]bool {
+	idents := e.generate()
+	e.fillResults(idents)
+	return idents
+}
+
+func (e *Evaluable) fillResults(idents [][]bool) {
+	for i := range idents {
+		e.results[e.props[i]] = idents[i]
+	}
+}
+
+func (e *Evaluable) generate() [][]bool {
 	propsQuant := len(e.props)
 	possibleResults := int(math.Pow(2, float64(propsQuant)))
 	result := e.generateResultArrays(possibleResults)
 	result = fillResultArrays(result, possibleResults)
-	if e.operation == expressions.NOT {
-		return result[0], nil, e.evaluate(result) // TODO: Get all results
-	}
-	return result[0], result[1], e.evaluate(result) // TODO: Get all results
+	return result
 }
 
-func (e Evaluable) generateResultArrays(length int) [][]bool {
+func (e *Evaluable) generateResultArrays(length int) [][]bool {
 	result := make([][]bool, len(e.props))
 	for i := range result {
 		result[i] = make([]bool, length)
@@ -55,23 +83,6 @@ func fill(input []bool, lengthWithTrues int) {
 			count = lengthWithTrues
 			filler = !filler
 		}
-	}
-}
-
-func (e Evaluable) evaluate(input [][]bool) []bool {
-	switch e.operation {
-	case expressions.AND:
-		return and(input[0], input[1])
-	case expressions.OR:
-		return or(input[0], input[1])
-	case expressions.IF_AND_ONLY_IF:
-		return ifAndOnlyIf(input[0], input[1])
-	case expressions.XOR:
-		return xor(input[0], input[1])
-	case expressions.IMPLIES:
-		return implies(input[0], input[1])
-	default:
-		return not(input[0])
 	}
 }
 

@@ -56,6 +56,6 @@ func inOrder[T any](node *Node[T]) {
 	}
 
 	inOrder(node.Left)
-	fmt.Printf("%v ", node.Value)
+	fmt.Printf("%#v ", node.Value)
 	inOrder(node.Right)
 }

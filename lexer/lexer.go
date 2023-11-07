@@ -34,8 +34,9 @@ func (t TokenType) String() string {
 }
 
 type Token struct {
-	TStr  string
-	TType TokenType
+	TStr              string
+	TType             TokenType
+	FullQualifiedProp string
 }
 
 func (t Token) String() string {
@@ -43,7 +44,7 @@ func (t Token) String() string {
 }
 
 func NewToken(str string, TType TokenType) Token {
-	return Token{str, TType}
+	return Token{TStr: str, TType: TType}
 }
 
 var ErrInvalidConnective = errors.New("invalid connective")
