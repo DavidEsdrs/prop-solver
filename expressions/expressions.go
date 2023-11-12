@@ -11,6 +11,7 @@ const (
 	XOR
 	IMPLIES
 	IF_AND_ONLY_IF
+	IDENT
 )
 
 type Term struct {
@@ -66,7 +67,7 @@ func GetConnectiveType(str string) Op {
 		return AND
 	case "\\/":
 		return OR
-	case "<>", "!=":
+	case "<>", "!=", "/V":
 		return XOR
 	case "<->", "<=>":
 		return IF_AND_ONLY_IF

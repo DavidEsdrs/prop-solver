@@ -11,6 +11,10 @@ type Evaluable struct {
 	results map[string][]bool
 }
 
+func (e *Evaluable) Props() []string {
+	return e.props
+}
+
 func (e *Evaluable) Result() map[string][]bool {
 	return e.results
 }
@@ -23,35 +27,34 @@ func NewEvaluable(tokens []*lexer.Token) Evaluable {
 }
 
 func getIdentifiers(tokens []*lexer.Token) []string {
-	props := []string{}
-
+	props := map[string][]bool{}
 	for _, n := range tokens {
 		if n.TType == lexer.IDENT {
-			props = append(props, n.TStr)
+			props[n.TStr] = []bool{}
 		}
 	}
-
-	return props
+	res := []string{}
+	for str := range props {
+		res = append(res, str)
+	}
+	return res
 }
 
-func (e *Evaluable) Evaluate() [][]bool {
-	idents := e.generate()
-	e.fillResults(idents)
-	return idents
+func (e *Evaluable) Evaluate() {
+	for _, n := range e.props {
+		e.results[n] = []bool{}
+	}
+	propsQuant := len(e.results)
+	possibleResults := int(math.Pow(2, float64(propsQuant)))
+	result := e.generateResultArrays(possibleResults)
+	result = fillResultArrays(result, possibleResults)
+	e.fillResults(result)
 }
 
 func (e *Evaluable) fillResults(idents [][]bool) {
 	for i := range idents {
 		e.results[e.props[i]] = idents[i]
 	}
-}
-
-func (e *Evaluable) generate() [][]bool {
-	propsQuant := len(e.props)
-	possibleResults := int(math.Pow(2, float64(propsQuant)))
-	result := e.generateResultArrays(possibleResults)
-	result = fillResultArrays(result, possibleResults)
-	return result
 }
 
 func (e *Evaluable) generateResultArrays(length int) [][]bool {
@@ -84,57 +87,4 @@ func fill(input []bool, lengthWithTrues int) {
 			filler = !filler
 		}
 	}
-}
-
-func not(input []bool) []bool {
-	result := make([]bool, len(input))
-	for i, n := range input {
-		result[i] = !n
-	}
-	return result
-}
-
-func and(a []bool, b []bool) []bool {
-	length := len(a)
-	result := make([]bool, length)
-	for i := 0; i < length; i++ {
-		result[i] = a[i] && b[i]
-	}
-	return result
-}
-
-func or(a []bool, b []bool) []bool {
-	length := len(a)
-	result := make([]bool, length)
-	for i := 0; i < length; i++ {
-		result[i] = a[i] || b[i]
-	}
-	return result
-}
-
-func xor(a []bool, b []bool) []bool {
-	length := len(a)
-	result := make([]bool, length)
-	for i := 0; i < length; i++ {
-		result[i] = a[i] != b[i]
-	}
-	return result
-}
-
-func ifAndOnlyIf(a []bool, b []bool) []bool {
-	length := len(a)
-	result := make([]bool, length)
-	for i := 0; i < length; i++ {
-		result[i] = a[i] == b[i]
-	}
-	return result
-}
-
-func implies(a []bool, b []bool) []bool {
-	length := len(a)
-	result := make([]bool, length)
-	for i := 0; i < length; i++ {
-		result[i] = !a[i] || b[i]
-	}
-	return result
 }

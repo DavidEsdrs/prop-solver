@@ -18,14 +18,21 @@ func main() {
 
 	fmt.Printf("input: %v\n", input)
 
+	for _, n := range evaluate(input) {
+		fmt.Printf("%v\n", n)
+	}
+}
+
+func evaluate(input string) []bool {
 	tokens := scanner(input)
 	root := parser.Parse(tokens)
 
-	tree := tree.NewTree[*tree.ParseTreeNode](root)
-	tree.InOrderTraversal()
+	e := eval.NewEvaluable(tokens)
+	e.Evaluate()
 
-	eval.NewEvaluable(tokens)
+	t := tree.NewTree[*tree.ParseTreeNode](root, e.Result())
 
+	return tree.EvalTree(&t)
 }
 
 func scanner(input string) []*lexer.Token {

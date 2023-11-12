@@ -9,17 +9,26 @@ import (
 	"github.com/DavidEsdrs/prop-solver/tree"
 )
 
+// Parse generates the Evaluation Tree and returns its root
 func Parse(tokens []*lexer.Token) *tree.Node[*tree.ParseTreeNode] {
 	if len(tokens) == 0 {
 		return nil
 	}
 
 	if len(tokens) == 1 {
-		return &tree.Node[*tree.ParseTreeNode]{
-			Value: &tree.ParseTreeNode{
-				Str:  tokens[0].TStr,
-				Type: expressions.GetConnectiveType(tokens[0].TStr),
-			},
+		if isConnective(tokens[0]) {
+			return &tree.Node[*tree.ParseTreeNode]{
+				Value: &tree.ParseTreeNode{
+					Str:  tokens[0].TStr,
+					Type: expressions.GetConnectiveType(tokens[0].TStr),
+				},
+			}
+		} else {
+			return &tree.Node[*tree.ParseTreeNode]{
+				Value: &tree.ParseTreeNode{
+					Str: tokens[0].TStr,
+				},
+			}
 		}
 	}
 
@@ -36,11 +45,19 @@ func Parse(tokens []*lexer.Token) *tree.Node[*tree.ParseTreeNode] {
 			currentPrecedence := getPrecedence(tokens[i].TStr)
 
 			if currentPrecedence < lastPrecedence {
-				root = &tree.Node[*tree.ParseTreeNode]{
-					Value: &tree.ParseTreeNode{
-						Str:  tokens[i].TStr,
-						Type: expressions.GetConnectiveType(tokens[i].TStr),
-					},
+				if isConnective(tokens[i]) {
+					root = &tree.Node[*tree.ParseTreeNode]{
+						Value: &tree.ParseTreeNode{
+							Str:  tokens[i].TStr,
+							Type: expressions.GetConnectiveType(tokens[i].TStr),
+						},
+					}
+				} else {
+					root = &tree.Node[*tree.ParseTreeNode]{
+						Value: &tree.ParseTreeNode{
+							Str: tokens[i].TStr,
+						},
+					}
 				}
 				connectiveIndex = i
 				lastPrecedence = currentPrecedence
@@ -69,6 +86,11 @@ func getPropStr(tokens []*lexer.Token) string {
 	}
 
 	return builder.String()
+}
+
+func isConnective(tok *lexer.Token) bool {
+	prec := getPrecedence(tok.TStr)
+	return prec != 0 && prec != math.MaxInt32
 }
 
 // returns the precedence of each connective

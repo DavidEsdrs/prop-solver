@@ -3,11 +3,15 @@ package tree
 import "fmt"
 
 type Tree[T any] struct {
-	root *Node[T]
+	mapping map[string][]bool
+	root    *Node[T]
 }
 
-func NewTree[T any](root *Node[T]) Tree[T] {
-	return Tree[T]{root}
+func NewTree[T any](root *Node[T], mapping map[string][]bool) Tree[T] {
+	return Tree[T]{
+		root:    root,
+		mapping: mapping,
+	}
 }
 
 func (t *Tree[T]) Root() *Node[T] {
@@ -18,6 +22,10 @@ type Node[T any] struct {
 	Value T
 	Left  *Node[T]
 	Right *Node[T]
+}
+
+func (n *Node[T]) IsLeaf() bool {
+	return n.Left == nil && n.Right == nil
 }
 
 func (t *Tree[T]) BreadthFirstTraversal() []T {
