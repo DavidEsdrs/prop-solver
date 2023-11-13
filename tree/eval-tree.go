@@ -13,17 +13,24 @@ func interpretate(root *Node[*ParseTreeNode], t *Tree[*ParseTreeNode]) []bool {
 	case root == nil:
 		return []bool{}
 	case root.IsLeaf():
-		return generateArray(root, t)
+		return getArray(root, t)
 	default:
 		left := interpretate(root.Left, t)
 		right := interpretate(root.Right, t)
 		result := eval(root, left, right)
-		t.mapping[root.Value.FullQualifiedProp] = result
+		saveInTree(root, t, result)
 		return result
 	}
 }
 
-func generateArray(root *Node[*ParseTreeNode], t *Tree[*ParseTreeNode]) []bool {
+// saves the result of the composite expression in the given tree
+func saveInTree(root *Node[*ParseTreeNode], t *Tree[*ParseTreeNode], result []bool) {
+	t.mapping[root.Value.FullQualifiedProp] = result
+}
+
+// get array gets the array created at the time that the tree and its nodes
+// was created
+func getArray(root *Node[*ParseTreeNode], t *Tree[*ParseTreeNode]) []bool {
 	return t.mapping[root.Value.Str]
 }
 
@@ -40,7 +47,9 @@ func eval(root *Node[*ParseTreeNode], left, right []bool) []bool {
 	case expressions.IMPLIES:
 		return implies(left, right)
 	default:
-		return not(right) // the leaf is ALWAYS in the right when the expression is a "not"
+		// the leaf is ALWAYS in the right when the expression is a "not"
+		// this is due the way that the expression is passed as tree
+		return not(right)
 	}
 }
 

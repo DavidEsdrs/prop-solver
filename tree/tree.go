@@ -18,6 +18,10 @@ func (t *Tree[T]) Root() *Node[T] {
 	return t.root
 }
 
+func (t *Tree[T]) Mapping() map[string][]bool {
+	return t.mapping
+}
+
 type Node[T any] struct {
 	Value T
 	Left  *Node[T]

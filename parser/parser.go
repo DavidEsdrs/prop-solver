@@ -16,20 +16,7 @@ func Parse(tokens []*lexer.Token) *tree.Node[*tree.ParseTreeNode] {
 	}
 
 	if len(tokens) == 1 {
-		if isConnective(tokens[0]) {
-			return &tree.Node[*tree.ParseTreeNode]{
-				Value: &tree.ParseTreeNode{
-					Str:  tokens[0].TStr,
-					Type: expressions.GetConnectiveType(tokens[0].TStr),
-				},
-			}
-		} else {
-			return &tree.Node[*tree.ParseTreeNode]{
-				Value: &tree.ParseTreeNode{
-					Str: tokens[0].TStr,
-				},
-			}
-		}
+		return createNode(tokens[0])
 	}
 
 	var (
@@ -45,20 +32,7 @@ func Parse(tokens []*lexer.Token) *tree.Node[*tree.ParseTreeNode] {
 			currentPrecedence := getPrecedence(tokens[i].TStr)
 
 			if currentPrecedence < lastPrecedence {
-				if isConnective(tokens[i]) {
-					root = &tree.Node[*tree.ParseTreeNode]{
-						Value: &tree.ParseTreeNode{
-							Str:  tokens[i].TStr,
-							Type: expressions.GetConnectiveType(tokens[i].TStr),
-						},
-					}
-				} else {
-					root = &tree.Node[*tree.ParseTreeNode]{
-						Value: &tree.ParseTreeNode{
-							Str: tokens[i].TStr,
-						},
-					}
-				}
+				root = createNode(tokens[i])
 				connectiveIndex = i
 				lastPrecedence = currentPrecedence
 			}
@@ -76,6 +50,20 @@ func Parse(tokens []*lexer.Token) *tree.Node[*tree.ParseTreeNode] {
 	}
 
 	return root
+}
+
+func createNode(token *lexer.Token) *tree.Node[*tree.ParseTreeNode] {
+	node := tree.Node[*tree.ParseTreeNode]{
+		Value: &tree.ParseTreeNode{
+			Str: token.TStr,
+		},
+	}
+
+	if isConnective(token) {
+		node.Value.Type = expressions.GetConnectiveType(token.TStr)
+	}
+
+	return &node
 }
 
 func getPropStr(tokens []*lexer.Token) string {

@@ -1,9 +1,7 @@
-package main
+package prop_solver
 
 import (
-	"fmt"
 	"io"
-	"os"
 	"strings"
 
 	"github.com/DavidEsdrs/prop-solver/eval"
@@ -12,18 +10,11 @@ import (
 	"github.com/DavidEsdrs/prop-solver/tree"
 )
 
-func main() {
-	args := os.Args[1:]
-	input := args[0]
-
-	fmt.Printf("input: %v\n", input)
-
-	for _, n := range evaluate(input) {
-		fmt.Printf("%v\n", n)
-	}
+func Solve(input string) (*tree.Tree[*tree.ParseTreeNode], []bool) {
+	return evaluate(input)
 }
 
-func evaluate(input string) []bool {
+func evaluate(input string) (*tree.Tree[*tree.ParseTreeNode], []bool) {
 	tokens := scanner(input)
 	root := parser.Parse(tokens)
 
@@ -32,7 +23,7 @@ func evaluate(input string) []bool {
 
 	t := tree.NewTree[*tree.ParseTreeNode](root, e.Result())
 
-	return tree.EvalTree(&t)
+	return &t, tree.EvalTree(&t)
 }
 
 func scanner(input string) []*lexer.Token {
