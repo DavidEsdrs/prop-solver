@@ -10,12 +10,16 @@ func EvalTree(t *Tree[*ParseTreeNode]) []bool {
 
 func interpretate(root *Node[*ParseTreeNode], t *Tree[*ParseTreeNode]) []bool {
 	switch {
+	case root == nil:
+		return []bool{}
 	case root.IsLeaf():
 		return generateArray(root, t)
 	default:
 		left := interpretate(root.Left, t)
 		right := interpretate(root.Right, t)
-		return eval(root, left, right)
+		result := eval(root, left, right)
+		t.mapping[root.Value.FullQualifiedProp] = result
+		return result
 	}
 }
 
