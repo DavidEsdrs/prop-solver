@@ -78,7 +78,7 @@ func getPropStr(tokens []*lexer.Token) string {
 
 func isConnective(tok *lexer.Token) bool {
 	prec := getPrecedence(tok.TStr)
-	return prec != 0 && prec != math.MaxInt32
+	return prec != -1 && prec != math.MaxInt32
 }
 
 // returns the precedence of each connective
@@ -97,6 +97,6 @@ func getPrecedence(conn string) int {
 	case "":
 		return math.MaxInt32
 	default:
-		return 0
+		return -1
 	}
 }
