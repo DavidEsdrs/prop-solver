@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	prop_solver "github.com/DavidEsdrs/prop-solver"
+	"github.com/DavidEsdrs/prop-solver/utils"
 )
 
 var (
@@ -17,7 +18,7 @@ var (
 func TestAnd(t *testing.T) {
 	_, res := prop_solver.Solve("p /\\ q")
 
-	if !equalsSlice[bool](res, andResult) {
+	if !utils.EqualsSlice[bool](res, andResult) {
 		t.Errorf("result doesn't match! fail")
 	}
 }
@@ -25,7 +26,7 @@ func TestAnd(t *testing.T) {
 func TestOr(t *testing.T) {
 	_, res := prop_solver.Solve("p \\/ q")
 
-	if !equalsSlice[bool](res, orResult) {
+	if !utils.EqualsSlice[bool](res, orResult) {
 		t.Errorf("result doesn't match! fail")
 	}
 }
@@ -33,7 +34,7 @@ func TestOr(t *testing.T) {
 func TestXor(t *testing.T) {
 	_, res := prop_solver.Solve("p != q")
 
-	if !equalsSlice[bool](res, xorResult) {
+	if !utils.EqualsSlice[bool](res, xorResult) {
 		t.Errorf("result doesn't match! fail")
 	}
 }
@@ -41,7 +42,15 @@ func TestXor(t *testing.T) {
 func TestImplies(t *testing.T) {
 	_, res := prop_solver.Solve("p -> q")
 
-	if !equalsSlice[bool](res, impliesResult) {
+	if !utils.EqualsSlice[bool](res, impliesResult) {
+		t.Errorf("result doesn't match! fail")
+	}
+}
+
+func TestImplies2(t *testing.T) {
+	_, res := prop_solver.Solve("p => q")
+
+	if !utils.EqualsSlice[bool](res, impliesResult) {
 		t.Errorf("result doesn't match! fail")
 	}
 }
@@ -49,21 +58,7 @@ func TestImplies(t *testing.T) {
 func TestIfAndOnlyIf(t *testing.T) {
 	_, res := prop_solver.Solve("p <-> q")
 
-	if !equalsSlice[bool](res, ifAndOnlyIf) {
+	if !utils.EqualsSlice[bool](res, ifAndOnlyIf) {
 		t.Errorf("result doesn't match! fail")
 	}
-}
-
-func equalsSlice[T comparable](sliceA, sliceB []T) bool {
-	if len(sliceA) != len(sliceB) {
-		return false
-	}
-
-	for i := range sliceA {
-		if sliceA[i] != sliceB[i] {
-			return false
-		}
-	}
-
-	return true
 }
