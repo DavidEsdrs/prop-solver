@@ -84,6 +84,8 @@ func isConnective(tok *lexer.Token) bool {
 // returns the precedence of each connective
 func getPrecedence(conn string) int {
 	switch conn {
+	case "!=", "><": // xor
+		return 0
 	case "<->":
 		return 1
 	case "->":
