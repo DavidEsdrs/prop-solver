@@ -88,7 +88,7 @@ func getPrecedence(conn string) int {
 		return 0
 	case "<->":
 		return 1
-	case "->":
+	case "->", "=>":
 		return 2
 	case "/\\", "\\/":
 		return 3
