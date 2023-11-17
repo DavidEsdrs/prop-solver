@@ -81,68 +81,117 @@ func (l *Lexer) Lex() (Token, error) {
 			case ')':
 				return NewToken(string(r), CLOSING), nil
 			case '/':
-				nextR, _, err := l.buf.ReadRune()
-
-				if err != nil {
-					return Token{}, err
-				}
-
-				if nextR != '\\' {
-					return Token{}, ErrInvalidConnective
-				}
-
-				return NewToken("/\\", CONN), nil
+				return l.parseAnd()
 			case '\\':
-				nextR, _, err := l.buf.ReadRune()
-
-				if err != nil {
-					panic(err)
-				}
-
-				if nextR != '/' {
-					return Token{}, ErrInvalidConnective
-				}
-
-				return NewToken("\\/", CONN), nil
+				return l.parseOr()
 			case '-':
-				nextR, _, err := l.buf.ReadRune()
-
-				if err != nil {
-					panic(err)
-				}
-
-				if nextR != '>' {
-					return Token{}, ErrInvalidConnective
-				}
-
-				return NewToken("->", CONN), nil
+				return l.parseImplies()
 			case '<':
-				nextR, _, err := l.buf.ReadRune()
-
-				if err != nil {
-					return Token{}, err
-				}
-
-				if nextR != '-' {
-					return Token{}, ErrInvalidConnective
-				}
-
-				nextR, _, err = l.buf.ReadRune()
-
-				if err != nil {
-					return Token{}, err
-				}
-
-				if nextR != '>' {
-					return Token{}, ErrInvalidConnective
-				}
-
-				return NewToken("<->", CONN), nil
+				return l.parseIfAndOnlyIf()
+			case '!':
+				return l.parseXor(true) // TODO: remove bool
+			case '>':
+				return l.parseXor(false)
 			default:
 				break
 			}
 		}
 	}
+}
+
+func (l *Lexer) parseAnd() (Token, error) {
+	nextR, _, err := l.buf.ReadRune()
+
+	if err != nil {
+		return Token{}, err
+	}
+
+	if nextR != '\\' {
+		return Token{}, ErrInvalidConnective
+	}
+
+	return NewToken("/\\", CONN), nil
+}
+
+func (l *Lexer) parseOr() (Token, error) {
+	nextR, _, err := l.buf.ReadRune()
+
+	if err != nil {
+		panic(err)
+	}
+
+	if nextR != '/' {
+		return Token{}, ErrInvalidConnective
+	}
+
+	return NewToken("\\/", CONN), nil
+}
+
+func (l *Lexer) parseImplies() (Token, error) {
+	nextR, _, err := l.buf.ReadRune()
+
+	if err != nil {
+		panic(err)
+	}
+
+	if nextR != '>' {
+		return Token{}, ErrInvalidConnective
+	}
+
+	return NewToken("->", CONN), nil
+}
+
+func (l *Lexer) parseIfAndOnlyIf() (Token, error) {
+	nextR, _, err := l.buf.ReadRune()
+
+	if err != nil {
+		return Token{}, err
+	}
+
+	if nextR != '-' {
+		return Token{}, ErrInvalidConnective
+	}
+
+	nextR, _, err = l.buf.ReadRune()
+
+	if err != nil {
+		return Token{}, err
+	}
+
+	if nextR != '>' {
+		return Token{}, ErrInvalidConnective
+	}
+
+	return NewToken("<->", CONN), nil
+}
+
+// TODO: remove bool
+func (l *Lexer) parseXor(isEx bool) (Token, error) {
+	if isEx {
+		nextR, _, err := l.buf.ReadRune()
+
+		if err != nil {
+			return Token{}, err
+		}
+
+		if nextR != '=' {
+			return Token{}, ErrInvalidConnective
+		}
+
+		return NewToken("!=", CONN), nil
+	}
+
+	nextR, _, err := l.buf.ReadRune()
+
+	if err != nil {
+		return Token{}, err
+	}
+
+	if nextR != '<' {
+		return Token{}, ErrInvalidConnective
+	}
+
+	return NewToken("><", CONN), nil
 }
 
 func (l *Lexer) lexIdentifier(firstRune rune) (Token, error) {
