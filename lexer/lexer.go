@@ -84,8 +84,8 @@ func (l *Lexer) Lex() (Token, error) {
 				return l.parseAnd()
 			case '\\':
 				return l.parseOr()
-			case '-':
-				return l.parseImplies()
+			case '-', '=':
+				return l.parseImplies(r)
 			case '<':
 				return l.parseIfAndOnlyIf()
 			case '!':
@@ -127,7 +127,7 @@ func (l *Lexer) parseOr() (Token, error) {
 	return NewToken("\\/", CONN), nil
 }
 
-func (l *Lexer) parseImplies() (Token, error) {
+func (l *Lexer) parseImplies(firstRune rune) (Token, error) {
 	nextR, _, err := l.buf.ReadRune()
 
 	if err != nil {
@@ -138,7 +138,11 @@ func (l *Lexer) parseImplies() (Token, error) {
 		return Token{}, ErrInvalidConnective
 	}
 
-	return NewToken("->", CONN), nil
+	if firstRune == '-' {
+		return NewToken("->", CONN), nil
+	}
+
+	return NewToken("=>", CONN), nil
 }
 
 func (l *Lexer) parseIfAndOnlyIf() (Token, error) {
