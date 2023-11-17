@@ -32,7 +32,7 @@ func (exp Expression) String() string {
 	case OR:
 		return fmt.Sprintf("%v \\/ %v", exp.termA.name, exp.termB.name)
 	case XOR:
-		return fmt.Sprintf("%v <> %v", exp.termA.name, exp.termB.name)
+		return fmt.Sprintf("%v != %v", exp.termA.name, exp.termB.name)
 	case IMPLIES:
 		return fmt.Sprintf("%v -> %v", exp.termA.name, exp.termB.name)
 	case IF_AND_ONLY_IF:
